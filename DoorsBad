@@ -1,0 +1,358 @@
+-- // YuriScripts | Doors But Bad
+-- // Feito por YuriDev
+-- // Discord: https://discord.gg/W6ZpwdusN
+
+local WindUI = loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"
+))()
+
+local Players         = game:GetService("Players")
+local RunService      = game:GetService("RunService")
+local Lighting        = game:GetService("Lighting")
+
+local LocalPlayer     = Players.LocalPlayer
+local Camera          = workspace.CurrentCamera
+
+local NoclipEnabled     = false
+local ESPEnabled        = false
+local InstantInteract   = false
+local FullBrightEnabled = false
+local SpeedValue        = 16
+local SelectedPlayer    = nil
+local NoclipConnection  = nil
+local playerIndex       = 1
+
+local OriginalAmbient    = Lighting.Ambient
+local OriginalBrightness = Lighting.Brightness
+local OriginalFogEnd     = Lighting.FogEnd
+
+-- ══════════════════════════════════════
+--                JANELA
+-- ══════════════════════════════════════
+
+local Window = WindUI:CreateWindow({
+    Title       = "YuriScripts",
+    Icon        = "star",
+    Author      = "Doors But Bad",
+    Theme       = "Violet",
+    Size        = UDim2.fromOffset(580, 490),
+    Folder      = "YuriScripts",
+    NewElements = true,
+    OpenButton  = {
+        Title           = "YuriScripts",
+        CornerRadius    = UDim.new(1, 0),
+        StrokeThickness = 2,
+        Enabled         = true,
+        Draggable       = true,
+        OnlyMobile      = false,
+        Scale           = 0.55,
+    },
+})
+
+Window:Tag({ Title = "v1.0",          Color = Color3.fromHex("#9b59b6"), Border = true })
+Window:Tag({ Title = "Doors But Bad", Color = Color3.fromHex("#6c3483"), Border = true })
+
+-- ══════════════════════════════════════
+-- Window > Section > Tab (estrutura WindUI)
+-- ══════════════════════════════════════
+
+local MainSection = Window:Section({ Title = "Menu" })
+
+-- ══════════════════════════════════════
+--         TAB 1 — UNIVERSAL
+-- ══════════════════════════════════════
+
+local TabUniversal = MainSection:Tab({
+    Title = "Universal",
+    Icon  = "globe",
+})
+
+-- Noclip
+local MovSection = TabUniversal:Section({ Title = "Movimento" })
+
+MovSection:Toggle({
+    Title    = "Noclip",
+    Desc     = "Atravessa paredes e objetos",
+    Value    = false,
+    Callback = function(state)
+        NoclipEnabled = state
+        if NoclipConnection then
+            NoclipConnection:Disconnect()
+            NoclipConnection = nil
+        end
+        if NoclipEnabled then
+            NoclipConnection = RunService.Stepped:Connect(function()
+                local char = LocalPlayer.Character
+                if not char then return end
+                for _, p in ipairs(char:GetDescendants()) do
+                    if p:IsA("BasePart") then p.CanCollide = false end
+                end
+            end)
+        else
+            local char = LocalPlayer.Character
+            if char then
+                for _, p in ipairs(char:GetDescendants()) do
+                    if p:IsA("BasePart") then p.CanCollide = true end
+                end
+            end
+        end
+    end,
+})
+
+-- ESP
+local VisualSection = TabUniversal:Section({ Title = "Visual" })
+
+local function ClearESP()
+    for _, v in ipairs(Camera:GetChildren()) do
+        if (v:IsA("BillboardGui") and v.Name == "YuriESP_Label") or
+           (v:IsA("SelectionBox")  and v.Name == "YuriESP_Box") then
+            v:Destroy()
+        end
+    end
+end
+
+local function ApplyESP(char, name)
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    local bb = Instance.new("BillboardGui")
+    bb.Name = "YuriESP_Label"; bb.Adornee = hrp
+    bb.AlwaysOnTop = true; bb.Size = UDim2.new(0,100,0,22)
+    bb.StudsOffset = Vector3.new(0,3.5,0); bb.Parent = Camera
+
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1,0,1,0); lbl.BackgroundTransparency = 1
+    lbl.Text = name; lbl.TextColor3 = Color3.fromHex("#bf7fff")
+    lbl.TextStrokeTransparency = 0; lbl.TextStrokeColor3 = Color3.new(0,0,0)
+    lbl.Font = Enum.Font.GothamBold; lbl.TextSize = 14; lbl.Parent = bb
+
+    local box = Instance.new("SelectionBox")
+    box.Name = "YuriESP_Box"; box.Adornee = char
+    box.Color3 = Color3.fromHex("#9b59b6"); box.LineThickness = 0.05
+    box.SurfaceTransparency = 0.85; box.SurfaceColor3 = Color3.fromHex("#6c3483")
+    box.Parent = Camera
+end
+
+VisualSection:Toggle({
+    Title    = "ESP de Players",
+    Desc     = "Mostra jogadores através das paredes",
+    Value    = false,
+    Callback = function(state)
+        ESPEnabled = state
+        ClearESP()
+        if ESPEnabled then
+            for _, p in ipairs(Players:GetPlayers()) do
+                if p ~= LocalPlayer then
+                    ApplyESP(p.Character, p.Name)
+                    p.CharacterAdded:Connect(function(c)
+                        if ESPEnabled then ApplyESP(c, p.Name) end
+                    end)
+                end
+            end
+        end
+    end,
+})
+
+Players.PlayerAdded:Connect(function(p)
+    p.CharacterAdded:Connect(function(c)
+        if ESPEnabled and p ~= LocalPlayer then ApplyESP(c, p.Name) end
+    end)
+end)
+
+-- Instant Interact
+local InteractSection = TabUniversal:Section({ Title = "Interacao" })
+
+InteractSection:Toggle({
+    Title    = "Instant Interact",
+    Desc     = "Interage instantaneamente com objetos",
+    Value    = false,
+    Callback = function(state)
+        InstantInteract = state
+        for _, v in ipairs(workspace:GetDescendants()) do
+            if v:IsA("ProximityPrompt") then
+                v.HoldDuration        = state and 0 or 0.6
+                v.RequiresLineOfSight = not state
+            end
+        end
+        if state then
+            workspace.DescendantAdded:Connect(function(obj)
+                if InstantInteract and obj:IsA("ProximityPrompt") then
+                    obj.HoldDuration = 0
+                    obj.RequiresLineOfSight = false
+                end
+            end)
+        end
+    end,
+})
+
+-- Players
+local PlayersSection = TabUniversal:Section({ Title = "Players" })
+
+PlayersSection:Button({
+    Title    = "Selecionar Player",
+    Desc     = "Cicla pelos jogadores online",
+    Callback = function()
+        local list = {}
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= LocalPlayer then table.insert(list, p.Name) end
+        end
+        if #list == 0 then
+            WindUI:Notify({ Title="YuriScripts", Content="Nenhum player online!", Duration=3 })
+            return
+        end
+        if playerIndex > #list then playerIndex = 1 end
+        SelectedPlayer = list[playerIndex]
+        playerIndex = playerIndex + 1
+        WindUI:Notify({ Title="Selecionado", Content=SelectedPlayer, Duration=2 })
+    end,
+})
+
+PlayersSection:Button({
+    Title    = "View Player",
+    Desc     = "Teleporta voce ate o player selecionado",
+    Callback = function()
+        if not SelectedPlayer then
+            WindUI:Notify({ Title="YuriScripts", Content="Selecione um player primeiro!", Duration=3 })
+            return
+        end
+        local t = Players:FindFirstChild(SelectedPlayer)
+        if t and t.Character and t.Character:FindFirstChild("HumanoidRootPart") then
+            local c = LocalPlayer.Character
+            if c and c:FindFirstChild("HumanoidRootPart") then
+                c.HumanoidRootPart.CFrame = t.Character.HumanoidRootPart.CFrame + Vector3.new(3,0,0)
+                WindUI:Notify({ Title="YuriScripts", Content="Teleportado ate "..SelectedPlayer, Duration=2 })
+            end
+        else
+            WindUI:Notify({ Title="YuriScripts", Content="Player nao encontrado!", Duration=3 })
+        end
+    end,
+})
+
+PlayersSection:Button({
+    Title    = "Bring Player",
+    Desc     = "Traz o player selecionado ate voce",
+    Callback = function()
+        if not SelectedPlayer then
+            WindUI:Notify({ Title="YuriScripts", Content="Selecione um player primeiro!", Duration=3 })
+            return
+        end
+        local t = Players:FindFirstChild(SelectedPlayer)
+        if t and t.Character and t.Character:FindFirstChild("HumanoidRootPart") then
+            local c = LocalPlayer.Character
+            if c and c:FindFirstChild("HumanoidRootPart") then
+                t.Character.HumanoidRootPart.CFrame = c.HumanoidRootPart.CFrame + Vector3.new(2,0,0)
+                WindUI:Notify({ Title="YuriScripts", Content=SelectedPlayer.." trazido!", Duration=2 })
+            end
+        else
+            WindUI:Notify({ Title="YuriScripts", Content="Player nao encontrado!", Duration=3 })
+        end
+    end,
+})
+
+-- ══════════════════════════════════════
+--       TAB 2 — DOORS BUT BAD
+-- ══════════════════════════════════════
+
+local TabDoors = MainSection:Tab({
+    Title = "Doors Bad",
+    Icon  = "door-open",
+})
+
+local SpeedSection = TabDoors:Section({ Title = "Movimento" })
+
+SpeedSection:Slider({
+    Title    = "Velocidade",
+    Desc     = "Ajuste a velocidade do personagem",
+    Value    = 16,
+    Min      = 16,
+    Max      = 250,
+    Decimals = 0,
+    Callback = function(v)
+        SpeedValue = v
+        local char = LocalPlayer.Character
+        if char then
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if hum then hum.WalkSpeed = v end
+        end
+    end,
+})
+
+LocalPlayer.CharacterAdded:Connect(function(char)
+    char:WaitForChild("Humanoid").WalkSpeed = SpeedValue
+    if NoclipEnabled then
+        for _, p in ipairs(char:GetDescendants()) do
+            if p:IsA("BasePart") then p.CanCollide = false end
+        end
+    end
+end)
+
+local LightSection = TabDoors:Section({ Title = "Iluminacao" })
+
+LightSection:Toggle({
+    Title    = "Full Bright",
+    Desc     = "Iluminacao maxima no ambiente",
+    Value    = false,
+    Callback = function(state)
+        if state then
+            Lighting.Ambient        = Color3.fromRGB(255,255,255)
+            Lighting.Brightness     = 2
+            Lighting.FogEnd         = 100000
+            Lighting.GlobalShadows  = false
+            Lighting.OutdoorAmbient = Color3.fromRGB(255,255,255)
+        else
+            Lighting.Ambient        = OriginalAmbient
+            Lighting.Brightness     = OriginalBrightness
+            Lighting.FogEnd         = OriginalFogEnd
+            Lighting.GlobalShadows  = true
+            Lighting.OutdoorAmbient = Color3.fromRGB(127,127,127)
+        end
+    end,
+})
+
+LightSection:Slider({
+    Title    = "Brilho",
+    Desc     = "Ajuste fino do brilho",
+    Value    = 1,
+    Min      = 0,
+    Max      = 5,
+    Decimals = 1,
+    Callback = function(v)
+        Lighting.Brightness = v
+    end,
+})
+
+-- ══════════════════════════════════════
+--          TAB 3 — CREDITOS
+-- ══════════════════════════════════════
+
+local TabCredits = MainSection:Tab({
+    Title = "Creditos",
+    Icon  = "star",
+})
+
+local CredSection = TabCredits:Section({ Title = "Sobre" })
+
+CredSection:Paragraph({ Title = "YuriScripts",    Desc = "Script para Doors But Bad. Use com responsabilidade!" })
+CredSection:Paragraph({ Title = "Desenvolvedor",  Desc = "Feito Por YuriDev" })
+CredSection:Paragraph({ Title = "Jogo",           Desc = "Doors But Bad" })
+CredSection:Paragraph({ Title = "Discord",        Desc = "discord.gg/W6ZpwdusN" })
+
+local VerSection = TabCredits:Section({ Title = "Versao" })
+VerSection:Paragraph({ Title = "v1.0.0", Desc = "Build estavel - WindUI by Footagesus" })
+
+CredSection:Button({
+    Title    = "Copiar Discord",
+    Desc     = "Copia o link do Discord",
+    Callback = function()
+        setclipboard("https://discord.gg/W6ZpwdusN")
+        WindUI:Notify({ Title="YuriScripts", Content="Link do Discord copiado!", Duration=2 })
+    end,
+})
+
+-- ══════════════════════════════════════
+WindUI:Notify({
+    Title    = "YuriScripts",
+    Content  = "Carregado! Bem-vindo, " .. LocalPlayer.Name .. "!",
+    Duration = 4,
+})
