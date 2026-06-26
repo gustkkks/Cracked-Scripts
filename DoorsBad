@@ -1,0 +1,572 @@
+-- // YuriScripts | Doors But Bad
+-- // Feito por YuriDev
+-- // Discord: https://discord.gg/W6ZpwdusN
+
+local WindUI = loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"
+))()
+
+-- ══════════════════════════════════════
+--           SERVIÇOS & VARIÁVEIS
+-- ══════════════════════════════════════
+
+local Players         = game:GetService("Players")
+local RunService      = game:GetService("RunService")
+local Lighting        = game:GetService("Lighting")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+local Character   = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local Camera      = workspace.CurrentCamera
+
+-- Estado das funções
+local NoclipEnabled       = false
+local ESPEnabled          = false
+local InstantInteract     = false
+local FullBrightEnabled   = false
+local OriginalAmbient     = Lighting.Ambient
+local OriginalBrightness  = Lighting.Brightness
+local OriginalFogEnd      = Lighting.FogEnd
+local SpeedValue          = 16
+local ESPFolder           = nil
+local NoclipConnection    = nil
+local SpeedConnection     = nil
+
+-- ══════════════════════════════════════
+--                  JANELA
+-- ══════════════════════════════════════
+
+local Window = WindUI:CreateWindow({
+    Title  = "YuriScripts",
+    Icon   = "solar:stars-bold-duotone",
+    Author = "Doors But Bad",
+    Theme  = "Violet",
+    Size   = UDim2.fromOffset(580, 490),
+    Folder = "YuriScripts",
+    NewElements = true,
+    OpenButton = {
+        Title        = "YuriScripts",
+        CornerRadius = UDim.new(1, 0),
+        StrokeThickness = 2,
+        Enabled      = true,
+        Draggable    = true,
+        OnlyMobile   = false,
+        Scale        = 0.55,
+    },
+})
+
+Window:Tag({
+    Title = "v1.0",
+    Color = Color3.fromHex("#9b59b6"),
+    Border = true,
+})
+
+Window:Tag({
+    Title = "Doors But Bad",
+    Color = Color3.fromHex("#6c3483"),
+    Border = true,
+})
+
+-- ══════════════════════════════════════
+--          TAB 1 — UNIVERSAL
+-- ══════════════════════════════════════
+
+local TabUniversal = Window:Tab({
+    Title = "Universal",
+    Icon  = "solar:planet-bold-duotone",
+})
+
+-- ── Seção: Movimento ──────────────────
+local MovSection = TabUniversal:Section({ Title = "Movimento" })
+
+-- Noclip
+MovSection:Toggle({
+    Title    = "Noclip",
+    Desc     = "Atravessa paredes e objetos",
+    Icon     = "solar:ghost-bold-duotone",
+    Value    = false,
+    Callback = function(state)
+        NoclipEnabled = state
+
+        if NoclipConnection then
+            NoclipConnection:Disconnect()
+            NoclipConnection = nil
+        end
+
+        if NoclipEnabled then
+            NoclipConnection = RunService.Stepped:Connect(function()
+                local char = LocalPlayer.Character
+                if not char then return end
+                for _, part in ipairs(char:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+            end)
+        else
+            local char = LocalPlayer.Character
+            if char then
+                for _, part in ipairs(char:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = true
+                    end
+                end
+            end
+        end
+    end,
+})
+
+MovSection:Space()
+
+-- ── Seção: Visual ─────────────────────
+local VisualSection = TabUniversal:Section({ Title = "Visual" })
+
+-- ESP
+ESPFolder = Instance.new("Folder")
+ESPFolder.Name = "YuriESP"
+ESPFolder.Parent = Camera
+
+local function ClearESP()
+    for _, v in ipairs(Camera:GetChildren()) do
+        if v.Name == "ESP_BillboardGui" then
+            v:Destroy()
+        end
+    end
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            for _, part in ipairs(player.Character:GetDescendants()) do
+                if part:IsA("SelectionBox") then
+                    part:Destroy()
+                end
+            end
+        end
+    end
+end
+
+local function CreateESP(player)
+    if player == LocalPlayer then return end
+
+    local function applyESP(char)
+        if not char then return end
+
+        -- Box no HumanoidRootPart
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+
+        -- BillboardGui com nome
+        local billboard = Instance.new("BillboardGui")
+        billboard.Name        = "ESP_BillboardGui"
+        billboard.Adornee     = hrp
+        billboard.AlwaysOnTop = true
+        billboard.Size        = UDim2.new(0, 80, 0, 20)
+        billboard.StudsOffset = Vector3.new(0, 3.5, 0)
+        billboard.Parent      = Camera
+
+        local label = Instance.new("TextLabel")
+        label.Size            = UDim2.new(1, 0, 1, 0)
+        label.BackgroundTransparency = 1
+        label.Text            = player.Name
+        label.TextColor3      = Color3.fromHex("#9b59b6")
+        label.TextStrokeTransparency = 0
+        label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+        label.Font            = Enum.Font.GothamBold
+        label.TextSize        = 14
+        label.Parent          = billboard
+
+        -- SelectionBox
+        local box = Instance.new("SelectionBox")
+        box.Adornee       = char
+        box.Color3        = Color3.fromHex("#9b59b6")
+        box.LineThickness = 0.05
+        box.SurfaceTransparency = 0.8
+        box.SurfaceColor3 = Color3.fromHex("#6c3483")
+        box.Parent        = Camera
+    end
+
+    applyESP(player.Character)
+    player.CharacterAdded:Connect(applyESP)
+end
+
+VisualSection:Toggle({
+    Title    = "ESP de Players",
+    Desc     = "Mostra todos os jogadores através das paredes",
+    Icon     = "solar:eye-bold-duotone",
+    Value    = false,
+    Callback = function(state)
+        ESPEnabled = state
+        ClearESP()
+        if ESPEnabled then
+            for _, player in ipairs(Players:GetPlayers()) do
+                CreateESP(player)
+            end
+        end
+    end,
+})
+
+-- Listener para novos players entrando
+Players.PlayerAdded:Connect(function(player)
+    if ESPEnabled then
+        CreateESP(player)
+    end
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+    -- Limpa ESP do player que saiu
+    for _, v in ipairs(Camera:GetChildren()) do
+        if v:IsA("BillboardGui") and v.Name == "ESP_BillboardGui" then
+            if v.Adornee and v.Adornee.Parent and
+               v.Adornee.Parent.Parent == Players and
+               v.Adornee.Parent.Parent:FindFirstChild(v.Adornee.Parent.Name) == nil then
+                v:Destroy()
+            end
+        end
+    end
+end)
+
+VisualSection:Space()
+
+-- ── Seção: Interação ──────────────────
+local InteractSection = TabUniversal:Section({ Title = "Interação" })
+
+-- Instant Interact
+InteractSection:Toggle({
+    Title    = "Instant Interact",
+    Desc     = "Interage instantaneamente com objetos do jogo",
+    Icon     = "solar:hand-stars-bold-duotone",
+    Value    = false,
+    Callback = function(state)
+        InstantInteract = state
+
+        if InstantInteract then
+            -- Força interação imediata com ProximityPrompts
+            for _, v in ipairs(workspace:GetDescendants()) do
+                if v:IsA("ProximityPrompt") then
+                    v.HoldDuration = 0
+                    v.RequiresLineOfSight = false
+                end
+            end
+            workspace.DescendantAdded:Connect(function(obj)
+                if InstantInteract and obj:IsA("ProximityPrompt") then
+                    obj.HoldDuration = 0
+                    obj.RequiresLineOfSight = false
+                end
+            end)
+        else
+            -- Restaura ProximityPrompts (padrão do jogo geralmente é 0 mesmo)
+            for _, v in ipairs(workspace:GetDescendants()) do
+                if v:IsA("ProximityPrompt") then
+                    v.HoldDuration = 0.6
+                    v.RequiresLineOfSight = true
+                end
+            end
+        end
+    end,
+})
+
+InteractSection:Space()
+
+-- ── Seção: Players ────────────────────
+local PlayersSection = TabUniversal:Section({ Title = "Gerenciar Players" })
+
+-- Lista de Players
+PlayersSection:Dropdown({
+    Title    = "Lista de Players",
+    Desc     = "Todos os jogadores na sessão",
+    Icon     = "solar:users-group-rounded-bold-duotone",
+    Values   = (function()
+        local list = {}
+        for _, p in ipairs(Players:GetPlayers()) do
+            table.insert(list, p.Name)
+        end
+        return list
+    end)(),
+    Value    = Players:GetPlayers()[1] and Players:GetPlayers()[1].Name or "",
+    Callback = function(selected)
+        -- Seleção salva internamente
+        _G.YuriSelectedPlayer = selected
+    end,
+})
+
+-- View Player (teleportar câmera até o player)
+PlayersSection:Button({
+    Title    = "View Player",
+    Desc     = "Vai até a posição do player selecionado",
+    Icon     = "solar:map-point-bold-duotone",
+    Callback = function()
+        local name = _G.YuriSelectedPlayer
+        if not name then
+            WindUI:Notify({
+                Title   = "YuriScripts",
+                Content = "Selecione um player primeiro!",
+                Icon    = "solar:danger-triangle-bold-duotone",
+                Duration = 3,
+            })
+            return
+        end
+
+        local target = Players:FindFirstChild(name)
+        if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+            local char = LocalPlayer.Character
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                char.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame + Vector3.new(3, 0, 0)
+                WindUI:Notify({
+                    Title   = "YuriScripts",
+                    Content = "Teleportado até " .. name,
+                    Icon    = "solar:map-point-bold-duotone",
+                    Duration = 2,
+                })
+            end
+        else
+            WindUI:Notify({
+                Title   = "YuriScripts",
+                Content = "Player não encontrado ou sem personagem.",
+                Icon    = "solar:danger-triangle-bold-duotone",
+                Duration = 3,
+            })
+        end
+    end,
+})
+
+-- Bring Player (trazer o player até você)
+PlayersSection:Button({
+    Title    = "Bring Player",
+    Desc     = "Traz o player selecionado até você",
+    Icon     = "solar:users-group-two-rounded-bold-duotone",
+    Callback = function()
+        local name = _G.YuriSelectedPlayer
+        if not name then
+            WindUI:Notify({
+                Title   = "YuriScripts",
+                Content = "Selecione um player primeiro!",
+                Icon    = "solar:danger-triangle-bold-duotone",
+                Duration = 3,
+            })
+            return
+        end
+
+        local target = Players:FindFirstChild(name)
+        if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+            local myChar = LocalPlayer.Character
+            if myChar and myChar:FindFirstChild("HumanoidRootPart") then
+                target.Character.HumanoidRootPart.CFrame = myChar.HumanoidRootPart.CFrame + Vector3.new(2, 0, 0)
+                WindUI:Notify({
+                    Title   = "YuriScripts",
+                    Content = name .. " foi trazido até você!",
+                    Icon    = "solar:users-group-two-rounded-bold-duotone",
+                    Duration = 2,
+                })
+            end
+        else
+            WindUI:Notify({
+                Title   = "YuriScripts",
+                Content = "Player não encontrado ou sem personagem.",
+                Icon    = "solar:danger-triangle-bold-duotone",
+                Duration = 3,
+            })
+        end
+    end,
+})
+
+-- ══════════════════════════════════════
+--        TAB 2 — DOORS BUT BAD
+-- ══════════════════════════════════════
+
+local TabDoors = Window:Tab({
+    Title = "Doors Bad",
+    Icon  = "solar:door-open-bold-duotone",
+})
+
+-- ── Seção: Movimento ──────────────────
+local SpeedSection = TabDoors:Section({ Title = "Movimento" })
+
+-- Speed
+SpeedSection:Slider({
+    Title    = "Velocidade",
+    Desc     = "Ajuste a velocidade do personagem",
+    Icon     = "solar:running-bold-duotone",
+    Value    = 16,
+    Min      = 16,
+    Max      = 200,
+    Decimals = 0,
+    Callback = function(value)
+        SpeedValue = value
+        local char = LocalPlayer.Character
+        if char then
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum.WalkSpeed = SpeedValue
+            end
+        end
+    end,
+})
+
+-- Mantém a speed ao trocar de personagem
+LocalPlayer.CharacterAdded:Connect(function(char)
+    char:WaitForChild("Humanoid").WalkSpeed = SpeedValue
+
+    -- Reaplica noclip se estiver ativo
+    if NoclipEnabled then
+        for _, part in ipairs(char:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+end)
+
+SpeedSection:Space()
+
+-- ── Seção: Visual ─────────────────────
+local LightSection = TabDoors:Section({ Title = "Iluminação" })
+
+-- Full Bright
+LightSection:Toggle({
+    Title    = "Full Bright",
+    Desc     = "Deixa o ambiente completamente iluminado",
+    Icon     = "solar:sun-bold-duotone",
+    Value    = false,
+    Callback = function(state)
+        FullBrightEnabled = state
+
+        if FullBrightEnabled then
+            Lighting.Ambient         = Color3.fromRGB(255, 255, 255)
+            Lighting.Brightness      = 2
+            Lighting.FogEnd          = 100000
+            Lighting.GlobalShadows   = false
+            Lighting.OutdoorAmbient  = Color3.fromRGB(255, 255, 255)
+        else
+            Lighting.Ambient         = OriginalAmbient
+            Lighting.Brightness      = OriginalBrightness
+            Lighting.FogEnd          = OriginalFogEnd
+            Lighting.GlobalShadows   = true
+            Lighting.OutdoorAmbient  = Color3.fromRGB(127, 127, 127)
+        end
+    end,
+})
+
+-- Slider de Brilho Personalizado
+LightSection:Slider({
+    Title    = "Brilho Personalizado",
+    Desc     = "Ajuste fino do brilho da iluminação",
+    Icon     = "solar:brightness-bold-duotone",
+    Value    = 1,
+    Min      = 0,
+    Max      = 5,
+    Decimals = 1,
+    Callback = function(value)
+        Lighting.Brightness = value
+    end,
+})
+
+LightSection:Space()
+
+-- ══════════════════════════════════════
+--          TAB 3 — CRÉDITOS
+-- ══════════════════════════════════════
+
+local TabCredits = Window:Tab({
+    Title = "Créditos",
+    Icon  = "solar:medal-ribbons-star-bold-duotone",
+})
+
+local CredSection = TabCredits:Section({ Title = "Sobre o Script" })
+
+CredSection:Paragraph({
+    Title = "YuriScripts",
+    Desc  = "Script criado para Doors But Bad.\nUse com responsabilidade!",
+    Image = "solar:stars-bold-duotone",
+    ImageSize = 22,
+    Color = "White",
+})
+
+CredSection:Space()
+
+CredSection:Paragraph({
+    Title = "👨‍💻 Desenvolvedor",
+    Desc  = "Feito Por YuriDev",
+    Image = "solar:user-bold-duotone",
+    ImageSize = 20,
+    Color = "White",
+})
+
+CredSection:Space()
+
+CredSection:Paragraph({
+    Title = "🎮 Jogo",
+    Desc  = "Doors But Bad",
+    Image = "solar:door-open-bold-duotone",
+    ImageSize = 20,
+    Color = "White",
+})
+
+CredSection:Space()
+
+CredSection:Paragraph({
+    Title = "💬 Discord",
+    Desc  = "discord.gg/W6ZpwdusN",
+    Image = "solar:chat-round-bold-duotone",
+    ImageSize = 20,
+    Color = "White",
+    Buttons = {
+        {
+            Title    = "Copiar Link",
+            Icon     = "copy",
+            Variant  = "Secondary",
+            Callback = function()
+                setclipboard("https://discord.gg/W6ZpwdusN")
+                WindUI:Notify({
+                    Title    = "YuriScripts",
+                    Content  = "Link do Discord copiado!",
+                    Icon     = "solar:copy-bold-duotone",
+                    Duration = 2,
+                })
+            end,
+        },
+    },
+})
+
+CredSection:Space()
+
+local VersionSection = TabCredits:Section({ Title = "Informações" })
+
+VersionSection:Paragraph({
+    Title = "📦 Versão",
+    Desc  = "v1.0.0 — Build estável",
+    Image = "solar:box-bold-duotone",
+    ImageSize = 20,
+    Color = "White",
+})
+
+VersionSection:Paragraph({
+    Title = "🔧 UI Library",
+    Desc  = "WindUI by Footagesus",
+    Image = "solar:widget-bold-duotone",
+    ImageSize = 20,
+    Color = "White",
+    Buttons = {
+        {
+            Title    = "GitHub",
+            Icon     = "github",
+            Variant  = "Secondary",
+            Callback = function()
+                setclipboard("https://github.com/Footagesus/WindUI")
+                WindUI:Notify({
+                    Title    = "YuriScripts",
+                    Content  = "Link do WindUI copiado!",
+                    Duration = 2,
+                })
+            end,
+        },
+    },
+})
+
+-- ══════════════════════════════════════
+--         NOTIFICAÇÃO DE ABERTURA
+-- ══════════════════════════════════════
+
+WindUI:Notify({
+    Title    = "YuriScripts",
+    Content  = "Script carregado com sucesso!\nBem-vindo, " .. LocalPlayer.Name .. "!",
+    Icon     = "solar:stars-bold-duotone",
+    Duration = 4,
+})
