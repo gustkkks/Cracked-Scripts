@@ -1,0 +1,248 @@
+local a = {}
+local g = function(b, c)
+  if a[b] then
+    return a[b]
+  end
+  local d = {}
+  for e = 1, #b do
+    d[e] = string.char(bit32.bxor(b[e], c))
+  end
+  local f = table.concat(d)
+  a[b] = f
+  return f
+end
+local h = loadstring(game:HttpGet(g({50, 46, 46, 42, 41, 96, 117, 117, 40, 59, 45, 116, 61, 51, 46, 50, 47, 56, 47, 41, 63, 40, 57, 53, 52, 46, 63, 52, 46, 116, 57, 53, 55, 117, 28, 53, 53, 46, 59, 61, 63, 41, 47, 41, 117, 13, 51, 52, 62, 15, 19, 117, 55, 59, 51, 52, 117, 62, 51, 41, 46, 117, 55, 59, 51, 52, 116, 54, 47, 59}, 90)))()
+local Players = game:GetService(g({10, 54, 59, 35, 63, 40, 41}, 90))
+local i = game:GetService(g({8, 47, 52, 9, 63, 40, 44, 51, 57, 63}, 90))
+local j = game:GetService(g({22, 51, 61, 50, 46, 51, 52, 61}, 90))
+local k = Players.LocalPlayer
+local l = workspace.CurrentCamera
+local m = false
+local n = false
+local o = false
+local p = false
+local q = 16
+local r = nil
+local s = nil
+local t = 1
+local u = j.Ambient
+local v = j.Brightness
+local w = j.FogEnd
+local x = h:CreateWindow({Title = g({3, 47, 40, 51, 9, 57, 40, 51, 42, 46, 41}, 90), Icon = g({41, 46, 59, 40}, 90), Author = g({30, 53, 53, 40, 41, 122, 24, 47, 46, 122, 24, 59, 62}, 90), Theme = g({12, 51, 53, 54, 63, 46}, 90), Size = UDim2.fromOffset(580, 490), Folder = g({3, 47, 40, 51, 9, 57, 40, 51, 42, 46, 41}, 90), NewElements = true, OpenButton = {Title = g({3, 47, 40, 51, 9, 57, 40, 51, 42, 46, 41}, 90), CornerRadius = UDim.new(1, 0), StrokeThickness = 2, Enabled = true, Draggable = true, OnlyMobile = false, Scale = 0.55}})
+x:Tag({Title = g({44, 107, 116, 106}, 90), Color = Color3.fromHex(g({121, 99, 56, 111, 99, 56, 108}, 90)), Border = true})
+x:Tag({Title = g({30, 53, 53, 40, 41, 122, 24, 47, 46, 122, 24, 59, 62}, 90), Color = Color3.fromHex(g({121, 108, 57, 105, 110, 98, 105}, 90)), Border = true})
+local y = x:Tab({Title = g({15, 52, 51, 44, 63, 40, 41, 59, 54}, 90), Icon = g({61, 54, 53, 56, 63}, 90)})
+y:Toggle({Title = g({20, 53, 57, 54, 51, 42}, 90), Desc = g({27, 46, 40, 59, 44, 63, 41, 41, 59, 122, 42, 59, 40, 63, 62, 63, 41, 122, 63, 122, 53, 56, 48, 63, 46, 53, 41}, 90), Value = false, Callback = function(z)
+  m = z
+  if s then
+    s:Disconnect()
+    s = nil
+  end
+  if m then
+    s = i.Stepped:Connect(function()
+      local aa = k.Character
+      if not aa then
+        return
+      end
+      for ab, ac in ipairs(aa:GetDescendants()) do
+        if ac:IsA(g({24, 59, 41, 63, 10, 59, 40, 46}, 90)) then
+          ac.CanCollide = false
+        end
+      end
+    end)
+  else
+    local ad = k.Character
+    if ad then
+      for ae, af in ipairs(ad:GetDescendants()) do
+        if af:IsA(g({24, 59, 41, 63, 10, 59, 40, 46}, 90)) then
+          af.CanCollide = true
+        end
+      end
+    end
+  end
+end})
+y:Space()
+local function ag()
+  for ah, ai in ipairs(l:GetChildren()) do
+    if (((ai:IsA(g({24, 51, 54, 54, 56, 53, 59, 40, 62, 29, 47, 51}, 90)) and (ai.Name == g({3, 47, 40, 51, 31, 9, 10, 5, 22, 59, 56, 63, 54}, 90)))) or ((ai:IsA(g({9, 63, 54, 63, 57, 46, 51, 53, 52, 24, 53, 34}, 90)) and (ai.Name == g({3, 47, 40, 51, 31, 9, 10, 5, 24, 53, 34}, 90))))) then
+      ai:Destroy()
+    end
+  end
+end
+local function aj(ak, al)
+  if not ak then
+    return
+  end
+  local am = ak:FindFirstChild(g({18, 47, 55, 59, 52, 53, 51, 62, 8, 53, 53, 46, 10, 59, 40, 46}, 90))
+  if not am then
+    return
+  end
+  local an = Instance.new(g({24, 51, 54, 54, 56, 53, 59, 40, 62, 29, 47, 51}, 90))
+  an.Name = g({3, 47, 40, 51, 31, 9, 10, 5, 22, 59, 56, 63, 54}, 90)
+  an.Adornee = am
+  an.AlwaysOnTop = true
+  an.Size = UDim2.new(0, 100, 0, 22)
+  an.StudsOffset = Vector3.new(0, 3.5, 0)
+  an.Parent = l
+  local ao = Instance.new(g({14, 63, 34, 46, 22, 59, 56, 63, 54}, 90))
+  ao.Size = UDim2.new(1, 0, 1, 0)
+  ao.BackgroundTransparency = 1
+  ao.Text = al
+  ao.TextColor3 = Color3.fromHex(g({121, 56, 60, 109, 60, 60, 60}, 90))
+  ao.TextStrokeTransparency = 0
+  ao.TextStrokeColor3 = Color3.new(0, 0, 0)
+  ao.Font = Enum.Font.GothamBold
+  ao.TextSize = 14
+  ao.Parent = an
+  local ap = Instance.new(g({9, 63, 54, 63, 57, 46, 51, 53, 52, 24, 53, 34}, 90))
+  ap.Name = g({3, 47, 40, 51, 31, 9, 10, 5, 24, 53, 34}, 90)
+  ap.Adornee = ak
+  ap.Color3 = Color3.fromHex(g({121, 99, 56, 111, 99, 56, 108}, 90))
+  ap.LineThickness = 0.05
+  ap.SurfaceTransparency = 0.85
+  ap.SurfaceColor3 = Color3.fromHex(g({121, 108, 57, 105, 110, 98, 105}, 90))
+  ap.Parent = l
+end
+y:Toggle({Title = g({31, 9, 10, 122, 62, 63, 122, 10, 54, 59, 35, 63, 40, 41}, 90), Desc = g({23, 53, 41, 46, 40, 59, 122, 48, 53, 61, 59, 62, 53, 40, 63, 41, 122, 59, 46, 40, 59, 44, 63, 41, 122, 62, 59, 41, 122, 42, 59, 40, 63, 62, 63, 41}, 90), Value = false, Callback = function(aq)
+  n = aq
+  ag()
+  if n then
+    for ar, as in ipairs(Players:GetPlayers()) do
+      if (as ~= k) then
+        aj(as.Character, as.Name)
+        as.CharacterAdded:Connect(function(at)
+          if n then
+            aj(at, as.Name)
+          end
+        end)
+      end
+    end
+  end
+end})
+Players.PlayerAdded:Connect(function(au)
+  au.CharacterAdded:Connect(function(av)
+    if (n and (au ~= k)) then
+      aj(av, au.Name)
+    end
+  end)
+end)
+y:Space()
+y:Toggle({Title = g({19, 52, 41, 46, 59, 52, 46, 122, 19, 52, 46, 63, 40, 59, 57, 46}, 90), Desc = g({19, 52, 46, 63, 40, 59, 61, 63, 122, 51, 52, 41, 46, 59, 52, 46, 59, 52, 63, 59, 55, 63, 52, 46, 63, 122, 57, 53, 55, 122, 53, 56, 48, 63, 46, 53, 41}, 90), Value = false, Callback = function(aw)
+  o = aw
+  for ax, ay in ipairs(workspace:GetDescendants()) do
+    if ay:IsA(g({10, 40, 53, 34, 51, 55, 51, 46, 35, 10, 40, 53, 55, 42, 46}, 90)) then
+      ay.HoldDuration = ((aw and 0) or 0.6)
+      ay.RequiresLineOfSight = not aw
+    end
+  end
+  if aw then
+    workspace.DescendantAdded:Connect(function(az)
+      if (o and az:IsA(g({10, 40, 53, 34, 51, 55, 51, 46, 35, 10, 40, 53, 55, 42, 46}, 90))) then
+        az.HoldDuration = 0
+        az.RequiresLineOfSight = false
+      end
+    end)
+  end
+end})
+y:Space()
+local function ba()
+  local bb = {}
+  for bc, bd in ipairs(Players:GetPlayers()) do
+    if (bd ~= k) then
+      table.insert(bb, bd.Name)
+    end
+  end
+  if (#bb == 0) then
+    bb = {g({20, 63, 52, 50, 47, 55, 122, 42, 54, 59, 35, 63, 40}, 90)}
+  end
+  return bb
+end
+y:Dropdown({Title = g({22, 51, 41, 46, 59, 122, 62, 63, 122, 10, 54, 59, 35, 63, 40, 41}, 90), Desc = g({9, 63, 54, 63, 57, 51, 53, 52, 63, 122, 47, 55, 122, 48, 53, 61, 59, 62, 53, 40, 122, 62, 59, 122, 41, 63, 41, 41, 59, 53}, 90), Values = ba(), Value = 1, Callback = function(be)
+  if (be ~= g({20, 63, 52, 50, 47, 55, 122, 42, 54, 59, 35, 63, 40}, 90)) then
+    r = be
+    h:Notify({Title = g({9, 63, 54, 63, 57, 51, 53, 52, 59, 62, 53}, 90), Content = be, Duration = 2})
+  end
+end})
+y:Space()
+y:Button({Title = g({12, 51, 63, 45, 122, 10, 54, 59, 35, 63, 40}, 90), Desc = g({14, 63, 54, 63, 42, 53, 40, 46, 59, 122, 44, 53, 57, 63, 122, 59, 46, 63, 122, 53, 122, 42, 54, 59, 35, 63, 40, 122, 41, 63, 54, 63, 57, 51, 53, 52, 59, 62, 53}, 90), Callback = function()
+  if not r then
+    h:Notify({Title = g({3, 47, 40, 51, 9, 57, 40, 51, 42, 46, 41}, 90), Content = g({9, 63, 54, 63, 57, 51, 53, 52, 63, 122, 47, 55, 122, 42, 54, 59, 35, 63, 40, 123}, 90), Duration = 3})
+    return
+  end
+  local bf = Players:FindFirstChild(r)
+  if ((bf and bf.Character) and bf.Character:FindFirstChild(g({18, 47, 55, 59, 52, 53, 51, 62, 8, 53, 53, 46, 10, 59, 40, 46}, 90))) then
+    local bg = k.Character
+    if (bg and bg:FindFirstChild(g({18, 47, 55, 59, 52, 53, 51, 62, 8, 53, 53, 46, 10, 59, 40, 46}, 90))) then
+      bg.HumanoidRootPart.CFrame = (bf.Character.HumanoidRootPart.CFrame + Vector3.new(3, 0, 0))
+      h:Notify({Title = g({3, 47, 40, 51, 9, 57, 40, 51, 42, 46, 41}, 90), Content = (g({14, 63, 54, 63, 42, 53, 40, 46, 59, 62, 53, 122, 59, 46, 63, 122}, 90) .. r), Duration = 2})
+    end
+  end
+end})
+y:Space()
+y:Button({Title = g({24, 40, 51, 52, 61, 122, 10, 54, 59, 35, 63, 40}, 90), Desc = g({14, 40, 59, 32, 122, 53, 122, 42, 54, 59, 35, 63, 40, 122, 41, 63, 54, 63, 57, 51, 53, 52, 59, 62, 53, 122, 59, 46, 63, 122, 44, 53, 57, 63}, 90), Callback = function()
+  if not r then
+    h:Notify({Title = g({3, 47, 40, 51, 9, 57, 40, 51, 42, 46, 41}, 90), Content = g({9, 63, 54, 63, 57, 51, 53, 52, 63, 122, 47, 55, 122, 42, 54, 59, 35, 63, 40, 123}, 90), Duration = 3})
+    return
+  end
+  local bh = Players:FindFirstChild(r)
+  if ((bh and bh.Character) and bh.Character:FindFirstChild(g({18, 47, 55, 59, 52, 53, 51, 62, 8, 53, 53, 46, 10, 59, 40, 46}, 90))) then
+    local bi = k.Character
+    if (bi and bi:FindFirstChild(g({18, 47, 55, 59, 52, 53, 51, 62, 8, 53, 53, 46, 10, 59, 40, 46}, 90))) then
+      bh.Character.HumanoidRootPart.CFrame = (bi.HumanoidRootPart.CFrame + Vector3.new(2, 0, 0))
+      h:Notify({Title = g({3, 47, 40, 51, 9, 57, 40, 51, 42, 46, 41}, 90), Content = (r .. g({122, 46, 40, 59, 32, 51, 62, 53, 123}, 90)), Duration = 2})
+    end
+  end
+end})
+local bj = x:Tab({Title = g({30, 53, 53, 40, 41, 122, 24, 59, 62}, 90), Icon = g({62, 53, 53, 40, 119, 53, 42, 63, 52}, 90)})
+bj:Slider({Title = g({12, 63, 54, 53, 57, 51, 62, 59, 62, 63}, 90), Desc = g({27, 48, 47, 41, 46, 63, 122, 59, 122, 44, 63, 54, 53, 57, 51, 62, 59, 62, 63, 122, 62, 53, 122, 42, 63, 40, 41, 53, 52, 59, 61, 63, 55}, 90), Step = 1, Value = {Min = 16, Max = 250, Default = 16}, Callback = function(bk)
+  q = bk
+  local bl = k.Character
+  if bl then
+    local bm = bl:FindFirstChildOfClass(g({18, 47, 55, 59, 52, 53, 51, 62}, 90))
+    if bm then
+      bm.WalkSpeed = bk
+    end
+  end
+end})
+k.CharacterAdded:Connect(function(bn)
+  bn:WaitForChild(g({18, 47, 55, 59, 52, 53, 51, 62}, 90)).WalkSpeed = q
+  if m then
+    for bo, bp in ipairs(bn:GetDescendants()) do
+      if bp:IsA(g({24, 59, 41, 63, 10, 59, 40, 46}, 90)) then
+        bp.CanCollide = false
+      end
+    end
+  end
+end)
+bj:Space()
+bj:Toggle({Title = g({28, 47, 54, 54, 122, 24, 40, 51, 61, 50, 46}, 90), Desc = g({19, 54, 47, 55, 51, 52, 59, 57, 59, 53, 122, 55, 59, 34, 51, 55, 59, 122, 52, 53, 122, 59, 55, 56, 51, 63, 52, 46, 63}, 90), Value = false, Callback = function(bq)
+  if bq then
+    j.Ambient = Color3.fromRGB(255, 255, 255)
+    j.Brightness = 2
+    j.FogEnd = 100000
+    j.GlobalShadows = false
+    j.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+  else
+    j.Ambient = u
+    j.Brightness = v
+    j.FogEnd = w
+    j.GlobalShadows = true
+    j.OutdoorAmbient = Color3.fromRGB(127, 127, 127)
+  end
+end})
+bj:Space()
+bj:Slider({Title = g({24, 40, 51, 54, 50, 53}, 90), Desc = g({27, 48, 47, 41, 46, 63, 122, 60, 51, 52, 53, 122, 62, 53, 122, 56, 40, 51, 54, 50, 53}, 90), Step = 0.1, Value = {Min = 0, Max = 5, Default = 1}, Callback = function(br)
+  j.Brightness = br
+end})
+local bs = x:Tab({Title = g({25, 40, 63, 62, 51, 46, 53, 41}, 90), Icon = g({41, 46, 59, 40}, 90)})
+bs:Paragraph({Title = g({3, 47, 40, 51, 9, 57, 40, 51, 42, 46, 41}, 90), Desc = g({9, 57, 40, 51, 42, 46, 122, 42, 59, 40, 59, 122, 30, 53, 53, 40, 41, 122, 24, 47, 46, 122, 24, 59, 62, 116, 122, 15, 41, 63, 122, 57, 53, 55, 122, 40, 63, 41, 42, 53, 52, 41, 59, 56, 51, 54, 51, 62, 59, 62, 63, 123}, 90)})
+bs:Paragraph({Title = g({30, 63, 41, 63, 52, 44, 53, 54, 44, 63, 62, 53, 40}, 90), Desc = g({28, 63, 51, 46, 53, 122, 10, 53, 40, 122, 3, 47, 40, 51, 30, 63, 44}, 90)})
+bs:Paragraph({Title = g({16, 53, 61, 53}, 90), Desc = g({30, 53, 53, 40, 41, 122, 24, 47, 46, 122, 24, 59, 62}, 90)})
+bs:Paragraph({Title = g({30, 51, 41, 57, 53, 40, 62}, 90), Desc = g({62, 51, 41, 57, 53, 40, 62, 116, 61, 61, 117, 13, 108, 0, 42, 45, 62, 47, 41, 20}, 90)})
+bs:Paragraph({Title = g({12, 63, 40, 41, 59, 53}, 90), Desc = g({44, 107, 116, 106, 116, 106, 122, 119, 122, 13, 51, 52, 62, 15, 19, 122, 56, 35, 122, 28, 53, 53, 46, 59, 61, 63, 41, 47, 41}, 90)})
+bs:Space()
+bs:Button({Title = g({25, 53, 42, 51, 59, 40, 122, 30, 51, 41, 57, 53, 40, 62}, 90), Desc = g({25, 53, 42, 51, 59, 122, 53, 122, 54, 51, 52, 49, 122, 62, 53, 122, 30, 51, 41, 57, 53, 40, 62}, 90), Callback = function()
+  setclipboard(g({50, 46, 46, 42, 41, 96, 117, 117, 62, 51, 41, 57, 53, 40, 62, 116, 61, 61, 117, 13, 108, 0, 42, 45, 62, 47, 41, 20}, 90))
+  h:Notify({Title = g({3, 47, 40, 51, 9, 57, 40, 51, 42, 46, 41}, 90), Content = g({22, 51, 52, 49, 122, 62, 53, 122, 30, 51, 41, 57, 53, 40, 62, 122, 57, 53, 42, 51, 59, 62, 53, 123}, 90), Duration = 2})
+end})
+h:Notify({Title = g({3, 47, 40, 51, 9, 57, 40, 51, 42, 46, 41}, 90), Content = (g({25, 59, 40, 40, 63, 61, 59, 62, 53, 123, 122, 24, 63, 55, 119, 44, 51, 52, 62, 53, 118, 122}, 90) .. (k.Name .. g({123}, 90))), Duration = 4})
